@@ -5,14 +5,20 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
 import SetAvatar from "./pages/SetAvatar";
+import Navbar from "./components/Navbar";
+import Nav from "./components/Nav";
+import Home from "./pages/Home";
 
 function App() {
   return (
     <BrowserRouter>
+    <Navbar/>
+    {/* <Nav/> */}
       <Routes>
+        <Route path="/" element={<Home/>}/>
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
-        <Route path="/" element={<Chat/>}/>
+        <Route path="/chat" element={<Chat/>}/>
         <Route path="/setAvatar" element={<SetAvatar/>}/>
       </Routes>
     </BrowserRouter>

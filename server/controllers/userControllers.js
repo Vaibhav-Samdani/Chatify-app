@@ -44,13 +44,35 @@ const login = async (req, res, next) => {
       return res.json({ msg: "Incorrect username or password", status: false });
     }
 
-    
     delete user.password;
-
-    return res.json({ status: true, user });
+    
+    userData = {
+      ...user._doc,
+      password: undefined,
+    };
+    console.log(userData);
+    
+    return res.json({ status: true, userData });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { register, login };
+
+const getAllUsers = async (req,res,next)=>{
+  try {
+    const users = await User.find({ _id: { $ne: req.params.id } }).select([
+      "email",
+      "username",
+      "avatarImage",
+      "_id",
+    ]);
+    return res.json(users);
+  } catch (ex) {
+    next(ex);
+  }
+}
+
+
+
+module.exports = { register, login,getAllUsers };

@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes")
+const messageRoutes = require("./routes/messageRoutes")
 require("dotenv").config({ path: ".env" });
 
 const app = express();
@@ -26,6 +27,7 @@ mongoose
 
 
 app.use("/api/auth",userRoutes);
+app.use("/api/messages",messageRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is started at http://localhost:${PORT}`);

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { loginRoute } from "../utils/APIRoutes";
+import toast, { Toaster } from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
