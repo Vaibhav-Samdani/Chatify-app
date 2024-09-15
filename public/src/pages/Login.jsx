@@ -30,7 +30,7 @@ useEffect(()=>{
         toast.error(data.msg);
       }
       if (data.status) {
-        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        localStorage.setItem("chat-app-user", JSON.stringify(data.userData));
         navigate("/");
       }
     }

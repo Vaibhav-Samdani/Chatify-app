@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { allUsersRoute } from "../utils/APIRoutes";
 
 function Chat() {
   const navigate = useNavigate();
+
+  // ==============         UseStates         =====================
+  const [contacts, setContacts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
-  // Pre-populate with some chat messages
+  const [selectedContact, setSelectedContact] = useState(undefined);
+  const [input, setInput] = useState("");
+  const [showUserList, setShowUserList] = useState(false);
   const [messages, setMessages] = useState([
     { text: "Hey, how are you?", sender: "User 1" },
     { text: "I am good, what about you?", sender: "You" },
@@ -14,25 +21,34 @@ function Chat() {
     { text: "That sounds awesome!", sender: "You" },
   ]);
 
+  // ================        Handle Functions         =======================
+
   const checkLogin = async () => {
     if (!localStorage.getItem("chat-app-user")) {
       navigate("/login");
     } else {
       setCurrentUser(await JSON.parse(localStorage.getItem("chat-app-user")));
-      console.log(currentUser);
+      // console.log(currentUser);
     }
   };
 
-  useEffect(() => { checkLogin()} , []);
-  useEffect( async ()=>{
-    if(currentUser){
-      const data = await axios.get(`${allUsersRoute}`)
+  const handleGetContacts = async () => {
+    console.log(currentUser);
+    if (currentUser) {
+      axios.get(`${allUsersRoute}/${currentUser._id}`).then((data) => {
+        setContacts(data.data);
+      });
     }
-  })
+  };
 
-  const [input, setInput] = useState("");
-  const [showUserList, setShowUserList] = useState(false); // Toggle state for user list
+  const handleLogOut = () => {
+    localStorage.removeItem("chat-app-user");
+    navigate("/login");
+  };
 
+  const handleSelectContact = (e) => {
+    setSelectedContact(e.username);
+  };
   const sendMessage = (e) => {
     e.preventDefault();
     if (input.trim()) {
@@ -40,6 +56,15 @@ function Chat() {
       setInput("");
     }
   };
+
+  //-------------->   UseEffects :    <-----------------------
+
+  useEffect(() => {
+    checkLogin();
+  }, []);
+  useEffect(() => {
+    handleGetContacts();
+  }, [currentUser]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -59,18 +84,33 @@ function Chat() {
           <h2 className="text-xl font-bold mb-4">Users</h2>
           <div className="flex-grow overflow-auto">
             <ul>
-              <li className="p-2 bg-gray-800 rounded mb-2 cursor-pointer">
-                User 1
-              </li>
-              <li className="p-2 bg-gray-800 rounded mb-2 cursor-pointer">
-                User 2
-              </li>
-              <li className="p-2 bg-gray-800 rounded mb-2 cursor-pointer">
-                User 3
-              </li>
+              {contacts.map((contact) => {
+                return (
+                  <li
+                    key={contact._id}
+                    onClick={() => {
+                      handleSelectContact(contact);
+                    }}
+                    className={`p-2 bg-gray-800 rounded mb-2 cursor-pointer ${
+                      selectedContact === contact.username
+                        ? `bg-gray-800 border duration-150`
+                        : `bg-gray-700`
+                    }`}
+                  >
+                    {contact.username}
+                  </li>
+                );
+              })}
             </ul>
           </div>
-          <button className="bg-red-600 p-2 rounded mt-4">Logout</button>
+          <button
+            onClick={() => {
+              handleLogOut();
+            }}
+            className="bg-red-600 p-2 rounded mt-4"
+          >
+            Logout
+          </button>
         </div>
 
         {/* Chat area */}
@@ -86,25 +126,29 @@ function Chat() {
 
           <div className="flex-grow p-4 overflow-auto">
             <div className="shadow-md rounded-lg p-4 bg-white">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`mb-2 ${
-                    message.sender === "You" ? "text-right" : "text-left"
-                  }`}
-                >
-                  <span className="block text-sm font-semibold text-gray-900">
-                    {message.sender}
-                  </span>
-                  <span
-                    className={`block p-2 rounded inline-block ${
-                      message.sender === "You" ? "bg-blue-100" : "bg-gray-200"
+              {selectedContact === undefined ? (
+                <HelloComponent />
+              ) : (
+                messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`mb-2 ${
+                      message.sender === "You" ? "text-right" : "text-left"
                     }`}
                   >
-                    {message.text}
-                  </span>
-                </div>
-              ))}
+                    <span className="block text-sm font-semibold text-gray-900">
+                      {message.sender}
+                    </span>
+                    <span
+                      className={`block p-2 rounded inline-block ${
+                        message.sender === "You" ? "bg-blue-100" : "bg-gray-200"
+                      }`}
+                    >
+                      {message.text}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -129,5 +173,28 @@ function Chat() {
     </div>
   );
 }
+
+const HelloComponent = () => {
+  const [username, setUsername] = useState("");
+
+  const handleUsername = async () => {
+    setUsername(
+      await JSON.parse(localStorage.getItem("chat-app-user")).username
+    );
+  };
+
+  useEffect(() => {handleUsername()}, []);
+  return (
+    <div className="flex items-center justify-center h-96 bg-gray-100 p-4">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">Hello, {username}!</h1>
+        <p className="mt-4 text-gray-600 text-sm md:text-base">
+          Welcome to the chat!
+        </p>
+        
+      </div>
+    </div>
+  );
+};
 
 export default Chat;
