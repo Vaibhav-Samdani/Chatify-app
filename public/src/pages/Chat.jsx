@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { allUsersRoute } from "../utils/APIRoutes";
+import EmojiPicker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
+import { IoCloseCircleSharp } from "react-icons/io5";
 
 function Chat() {
   const navigate = useNavigate();
@@ -12,6 +15,7 @@ function Chat() {
   const [selectedContact, setSelectedContact] = useState(undefined);
   const [input, setInput] = useState("");
   const [showUserList, setShowUserList] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [messages, setMessages] = useState([
     { text: "Hey, how are you?", sender: "User 1" },
     { text: "I am good, what about you?", sender: "You" },
@@ -31,9 +35,11 @@ function Chat() {
       // console.log(currentUser);
     }
   };
+  const handleEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
 
   const handleGetContacts = async () => {
-    console.log(currentUser);
     if (currentUser) {
       axios.get(`${allUsersRoute}/${currentUser._id}`).then((data) => {
         setContacts(data.data);
@@ -126,34 +132,65 @@ function Chat() {
 
           <div className="flex-grow p-4 overflow-auto">
             <div className="shadow-md rounded-lg p-4 bg-white">
+              <div className="block text-2xl font-bold text-gray-900 capitalize pb-5">
+                <h1>{selectedContact}</h1>
+              </div>
               {selectedContact === undefined ? (
                 <HelloComponent />
               ) : (
                 messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`mb-2 ${
-                      message.sender === "You" ? "text-right" : "text-left"
-                    }`}
-                  >
-                    <span className="block text-sm font-semibold text-gray-900">
-                      {message.sender}
-                    </span>
-                    <span
-                      className={`block p-2 rounded inline-block ${
-                        message.sender === "You" ? "bg-blue-100" : "bg-gray-200"
+                  <>
+                    <div
+                      key={index}
+                      className={`mb-2 ${
+                        message.sender === "You" ? "text-right" : "text-left"
                       }`}
                     >
-                      {message.text}
-                    </span>
-                  </div>
+                      {/* <span className="block text-sm font-semibold text-gray-900">
+                        {message.sender}
+                      </span> */}
+                      <span
+                        className={`block p-2 rounded inline-block ${
+                          message.sender === "You"
+                            ? "bg-blue-100"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {message.text}
+                      </span>
+                    </div>
+                  </>
                 ))
               )}
             </div>
           </div>
 
           {/* Message Input Form */}
-          <form onSubmit={sendMessage} className="bg-gray-900 p-4 flex">
+          <form
+            onSubmit={sendMessage}
+            className="bg-gray-900 p-4 pl-0 flex justify-evenly"
+          >
+            {/* <EmojiPicker /> */}
+            <div className="text-yellow-400 flex justify-center items-center mr-2">
+              {showEmojiPicker ? (
+                <>
+                  {/* <EmojiPicker className="sticky bottom-[300%]" /> */}
+                  <IoCloseCircleSharp
+                    className="h-6 w-6"
+                    onClick={() => {
+                      handleEmojiPicker();
+                    }}
+                  />
+                </>
+              ) : (
+                <BsEmojiSmileFill
+                  className="h-6 w-6"
+                  onClick={() => {
+                    handleEmojiPicker();
+                  }}
+                />
+              )}
+            </div>
             <input
               type="text"
               value={input}
@@ -183,15 +220,18 @@ const HelloComponent = () => {
     );
   };
 
-  useEffect(() => {handleUsername()}, []);
+  useEffect(() => {
+    handleUsername();
+  }, []);
   return (
     <div className="flex items-center justify-center h-96 bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
-        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">Hello, {username}!</h1>
+        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
+          Hello, {username}!
+        </h1>
         <p className="mt-4 text-gray-600 text-sm md:text-base">
           Welcome to the chat!
         </p>
-        
       </div>
     </div>
   );
