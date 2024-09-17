@@ -177,13 +177,13 @@ function Chat() {
             </button>
           </div>
 
-          <div className="flex-grow p-4 overflow-auto">
-            <div className="shadow-md rounded-lg p-4 bg-white">
+          <div className="flex-grow p-4 overflow-auto mb-16">
+            <div className="shadow-md rounded-lg p-4 bg-white ">
               {selectedContact === undefined ? (
                 <HelloComponent />
               ) : (
                 <>
-                  <div className="block text-2xl font-semibold  capitalize text-black pb-5 pl-1 flex items-center gap-2 ">
+                  <div className="block text-2xl font-semibold  capitalize text-black pb-5 pl-1 flex items-center gap-2 max-h-full">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -199,23 +199,23 @@ function Chat() {
                       />
                     </svg>
 
-                    <h1 key={selectedContact} >{selectedContact}</h1>
+                    <h1 key={selectedContact}>{selectedContact}</h1>
                   </div>
                   {messages.map((message, index) => (
                     <>
                       <div
                         key={index}
-                        className={`mb-2 ${
+                        className={`mb-2 flex ${
                           message.sender === currentUser._id
-                            ? "text-right"
-                            : "text-left"
+                            ? "text-left justify-end items-end"
+                            : "text-left justify-start items-start"
                         }`}
                       >
                         {/* <span className="block text-sm font-semibold text-gray-900">
                         {message.sender}
                       </span> */}
                         <span
-                          className={`block p-2 rounded inline-block ${
+                          className={`block p-2 max-w-2xl rounded inline-block ${
                             message.sender === currentUser._id
                               ? "bg-blue-100"
                               : "bg-gray-200"
@@ -234,7 +234,7 @@ function Chat() {
           {/* Message Input Form */}
           <form
             onSubmit={sendMessage}
-            className="bg-gray-900 p-4 pl-0 flex justify-evenly"
+            className="bg-gray-900 p-4 pl-0 flex justify-evenly fixed w-full md:w-9/12 bottom-[0%]"
           >
             {/* <EmojiPicker /> */}
             <div className="text-yellow-400 flex justify-center items-center mr-2">
