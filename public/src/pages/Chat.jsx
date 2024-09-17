@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { CgProfile } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import axios from "axios";
 import {
   allUsersRoute,
+  host,
   recieveMessageRoute,
   sendMessageRoute,
 } from "../utils/APIRoutes";
@@ -12,6 +15,8 @@ import { IoCloseCircleSharp } from "react-icons/io5";
 
 function Chat() {
   const navigate = useNavigate();
+
+  const socket = useRef();
 
   // ==============         UseStates         =====================
   const [contacts, setContacts] = useState([]);
@@ -63,6 +68,14 @@ function Chat() {
       to: currentChat._id,
       message: input,
     });
+    console.log(messages);
+    // socket.current.emit("send-msg",{
+    //   to : currentChat._id,
+    //   from : currentUser._id,
+    //   message : input
+    // })
+    // const msgs = [...messages];
+    // input.push({})
     setChatAdded(input);
 
     setInput("");
@@ -86,8 +99,18 @@ function Chat() {
   useEffect(() => {
     checkLogin();
   }, []);
+
   useEffect(() => {
-    handleGetContacts();
+    if (currentUser) {
+      socket.current = io(host);
+      socket.current.emit("add-user", currentUser._id);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      handleGetContacts();
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -156,37 +179,54 @@ function Chat() {
 
           <div className="flex-grow p-4 overflow-auto">
             <div className="shadow-md rounded-lg p-4 bg-white">
-              <div className="block text-2xl font-bold text-gray-900 capitalize pb-5">
-                <h1 key={selectedContact}>{selectedContact}</h1>
-              </div>
               {selectedContact === undefined ? (
                 <HelloComponent />
               ) : (
-                messages.map((message, index) => (
-                  <>
-                    <div
-                      key={index}
-                      className={`mb-2 ${
-                        message.sender === currentUser._id
-                          ? "text-right"
-                          : "text-left"
-                      }`}
+                <>
+                  <div className="block text-2xl font-semibold  capitalize text-black pb-5 pl-1 flex items-center gap-2 ">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-7"
                     >
-                      {/* <span className="block text-sm font-semibold text-gray-900">
-                        {message.sender}
-                      </span> */}
-                      <span
-                        className={`block p-2 rounded inline-block ${
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                      />
+                    </svg>
+
+                    <h1 key={selectedContact} >{selectedContact}</h1>
+                  </div>
+                  {messages.map((message, index) => (
+                    <>
+                      <div
+                        key={index}
+                        className={`mb-2 ${
                           message.sender === currentUser._id
-                            ? "bg-blue-100"
-                            : "bg-gray-200"
+                            ? "text-right"
+                            : "text-left"
                         }`}
                       >
-                        {message.message.text}
-                      </span>
-                    </div>
-                  </>
-                ))
+                        {/* <span className="block text-sm font-semibold text-gray-900">
+                        {message.sender}
+                      </span> */}
+                        <span
+                          className={`block p-2 rounded inline-block ${
+                            message.sender === currentUser._id
+                              ? "bg-blue-100"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {message.message.text}
+                        </span>
+                      </div>
+                    </>
+                  ))}
+                </>
               )}
             </div>
           </div>
