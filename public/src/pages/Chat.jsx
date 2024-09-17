@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { allUsersRoute } from "../utils/APIRoutes";
+import {
+  allUsersRoute,
+  recieveMessageRoute,
+  sendMessageRoute,
+} from "../utils/APIRoutes";
 import EmojiPicker from "emoji-picker-react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { IoCloseCircleSharp } from "react-icons/io5";
@@ -13,17 +17,12 @@ function Chat() {
   const [contacts, setContacts] = useState([]);
   const [currentUser, setCurrentUser] = useState(undefined);
   const [selectedContact, setSelectedContact] = useState(undefined);
+  const [currentChat, setCurrentChat] = useState(undefined);
   const [input, setInput] = useState("");
+  const [chatAdded, setChatAdded] = useState("");
   const [showUserList, setShowUserList] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [messages, setMessages] = useState([
-    { text: "Hey, how are you?", sender: "User 1" },
-    { text: "I am good, what about you?", sender: "You" },
-    { text: "I am doing well too!", sender: "User 1" },
-    { text: "What are you working on these days?", sender: "You" },
-    { text: "Just building some cool web apps.", sender: "User 1" },
-    { text: "That sounds awesome!", sender: "You" },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   // ================        Handle Functions         =======================
 
@@ -52,15 +51,34 @@ function Chat() {
     navigate("/login");
   };
 
-  const handleSelectContact = (e) => {
+  const handleSelectContact = async (e) => {
     setSelectedContact(e.username);
+    setCurrentChat(e);
   };
-  const sendMessage = (e) => {
+
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (input.trim()) {
-      setMessages([...messages, { text: input, sender: "You" }]);
-      setInput("");
-    }
+    await axios.post(sendMessageRoute, {
+      from: currentUser._id,
+      to: currentChat._id,
+      message: input,
+    });
+    setChatAdded(input);
+
+    setInput("");
+
+    // if (input.trim()) {
+    //   setMessages([...messages, { text: input, sender: "You" }]);
+    //   setInput("");
+    // }
+  };
+
+  const handleReceiveMessages = async () => {
+    const response = await axios.post(recieveMessageRoute, {
+      from: currentUser._id,
+      to: currentChat._id,
+    });
+    setMessages(response.data);
   };
 
   //-------------->   UseEffects :    <-----------------------
@@ -71,6 +89,12 @@ function Chat() {
   useEffect(() => {
     handleGetContacts();
   }, [currentUser]);
+
+  useEffect(() => {
+    if (currentChat) {
+      handleReceiveMessages();
+    }
+  }, [currentChat, chatAdded]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -133,7 +157,7 @@ function Chat() {
           <div className="flex-grow p-4 overflow-auto">
             <div className="shadow-md rounded-lg p-4 bg-white">
               <div className="block text-2xl font-bold text-gray-900 capitalize pb-5">
-                <h1>{selectedContact}</h1>
+                <h1 key={selectedContact}>{selectedContact}</h1>
               </div>
               {selectedContact === undefined ? (
                 <HelloComponent />
@@ -143,7 +167,9 @@ function Chat() {
                     <div
                       key={index}
                       className={`mb-2 ${
-                        message.sender === "You" ? "text-right" : "text-left"
+                        message.sender === currentUser._id
+                          ? "text-right"
+                          : "text-left"
                       }`}
                     >
                       {/* <span className="block text-sm font-semibold text-gray-900">
@@ -151,12 +177,12 @@ function Chat() {
                       </span> */}
                       <span
                         className={`block p-2 rounded inline-block ${
-                          message.sender === "You"
+                          message.sender === currentUser._id
                             ? "bg-blue-100"
                             : "bg-gray-200"
                         }`}
                       >
-                        {message.text}
+                        {message.message.text}
                       </span>
                     </div>
                   </>
@@ -199,6 +225,7 @@ function Chat() {
               className="flex-grow p-2 rounded border border-gray-700 focus:outline-none text-gray-900"
             />
             <button
+              disabled={input.trim() === "" || input.trim() === " "}
               type="submit"
               className="ml-2 bg-blue-600 text-white p-2 rounded"
             >
