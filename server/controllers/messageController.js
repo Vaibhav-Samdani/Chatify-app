@@ -23,7 +23,7 @@ const getMessages = async (req, res, next) => {
         $all:[from,to]
       },
     }).sort({createdAt : 1});
-    console.log(messages);
+    // console.log(messages);
     
     // const projectMessages = messages.map((msg)=>{
     //   return {

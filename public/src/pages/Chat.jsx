@@ -28,6 +28,7 @@ function Chat() {
   const [showUserList, setShowUserList] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
 
   // ================        Handle Functions         =======================
 
@@ -63,17 +64,17 @@ function Chat() {
 
   const sendMessage = async (e) => {
     e.preventDefault();
+    socket.current.emit("send-msg", {
+      to: currentChat._id,
+      from: currentUser._id,
+      message: input,
+    });
     await axios.post(sendMessageRoute, {
       from: currentUser._id,
       to: currentChat._id,
       message: input,
     });
     console.log(messages);
-    // socket.current.emit("send-msg",{
-    //   to : currentChat._id,
-    //   from : currentUser._id,
-    //   message : input
-    // })
     // const msgs = [...messages];
     // input.push({})
     setChatAdded(input);
@@ -102,14 +103,10 @@ function Chat() {
 
   useEffect(() => {
     if (currentUser) {
-      socket.current = io(host);
-      socket.current.emit("add-user", currentUser._id);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (currentUser) {
       handleGetContacts();
+      socket.current = io(host);
+      // console.log(currentUser._id);
+      socket.current.emit("add-user", currentUser._id);
     }
   }, [currentUser]);
 
@@ -118,6 +115,24 @@ function Chat() {
       handleReceiveMessages();
     }
   }, [currentChat, chatAdded]);
+
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msg-receive", (msg) => {
+        console.log("msg-receive : ",msg);
+        setArrivalMessage({
+          message: { text: msg.message },
+          sender: msg.from,
+          users: [msg.from, msg.to],
+        });
+      });
+    }
+    // console.log(arrivalMessage);
+  });
+
+  useEffect(() => {
+    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
 
   return (
     <div className="flex flex-col h-screen">
