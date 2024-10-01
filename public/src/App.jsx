@@ -8,6 +8,7 @@ import SetAvatar from "./pages/SetAvatar";
 import Navbar from "./components/Navbar";
 import Nav from "./components/Nav";
 import Home from "./pages/Home";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/register" element={<Register/>}/>
         <Route path="/chat" element={<Chat/>}/>
         <Route path="/setAvatar" element={<SetAvatar/>}/>
+        <Route path="/contactus" element={<ContactPage/>}/>
       </Routes>
     </BrowserRouter>
   );

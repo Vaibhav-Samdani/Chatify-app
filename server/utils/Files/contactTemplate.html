@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* General styling for the email */
+    body {
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .email-container {
+      background-color: #ffffff;
+      max-width: 600px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .email-header {
+      background-color: #0056b3;
+      padding: 20px;
+      color: #ffffff;
+      text-align: center;
+      font-size: 24px;
+    }
+    .email-content {
+      padding: 20px;
+      color: #333;
+    }
+    .email-content h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .email-content p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .email-footer {
+      background-color: #f4f4f4;
+      padding: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="email-container">
+    <!-- Email Header -->
+    <tr>
+      <td class="email-header">
+        New Message Received {{title}}
+      </td>
+    </tr>
+
+    <!-- Email Body / Content -->
+    <tr>
+      <td class="email-content">
+        <h2>Hello, You have received a new message!</h2>
+        <p><span class="info-label">Name:</span> {{name}}</p>
+        <p><span class="info-label">Email:</span> {{email}}</p>
+        <p><span class="info-label">Message:</span></p>
+        <p>{{message}}</p>
+      </td>
+    </tr>
+
+    <!-- Email Footer -->
+    <tr>
+      <td class="email-footer">
+        This is an automated message. Please do not reply to this email.
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
