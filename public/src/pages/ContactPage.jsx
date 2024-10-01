@@ -3,12 +3,13 @@ import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa"; // Social medi
 import "animate.css"; // For animations
 import axios from "axios";
 import { contactUsRoute } from "../utils/APIRoutes";
+import toast, { Toaster } from "react-hot-toast";
 
 const ContactPage = () => {
   const [values, setValues] = useState({
-    name: "Vaibhav Samdani",
-    email: "Vaibhavsamdani24@gmail.com",
-    message: "Testing Mails",
+    name: "",
+    email: "",
+    message: "",
   });
 
   const handleChange = (e) => {
@@ -20,14 +21,14 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post(contactUsRoute,values) 
+    const response = await axios.post(contactUsRoute, values);
     console.log(response.data);
+    toast.success(response.data.msg);
     setValues({
-        name: "",
-        email: "",
-        message: "",
-      })
-
+      name: "",
+      email: "",
+      message: "",
+    });
   };
 
   return (
@@ -62,7 +63,7 @@ const ContactPage = () => {
             <input
               type="text"
               id="name"
-              name="name" 
+              name="name"
               required
               onChange={(e) => handleChange(e)}
               value={values.name}
@@ -140,6 +141,8 @@ const ContactPage = () => {
           &copy; {new Date().getFullYear()} Chatify. Built by Vaibhav Samdani.
         </p>
       </footer>
+      <Toaster position="top-right" reverseOrder={true} />
+
     </div>
   );
 };
